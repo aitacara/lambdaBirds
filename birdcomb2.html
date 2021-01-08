@@ -1,0 +1,562 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Birds</title>
+    <!-- <script type="text/javascript" src="js/singlebird.js"></script> -->
+  </head>
+  <body onload="init();">
+    <div>
+      <p>
+        <label></label>
+        <input type = "text"
+               id = "myText"
+               value = "La.a" />
+        <label> is heard by</label>
+
+        <input type = "text"
+               id = "myText1"
+               value = "La.aa" />
+        
+        <button onclick="init()">Build Bird</button>
+      </p>
+      <canvas id="canvas" width="2000" height="1200">
+      Sorry, browser does not support canvas.
+      </canvas>
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+var canvas;
+var ctx;
+var applicatorLoc = [];
+var inputPosDict = [];
+var colorMixDict = [];
+var topPathDict = [];
+var sidePathDict = [];
+// enter a bird and input and find top or side paths
+var spareColors;
+var lambda1,lambda2;
+var lambda1Length,lambda2Length;
+var continueAnimating=false;
+
+//Animate
+var ax=70;
+var ay=70;
+var as=.5;
+var move=0.01;
+//ancor
+var bx =70;
+var by=70;
+var start=0;
+
+var birdList =[];
+var birdControlList =[];
+var dontDrawList =[];
+var tempbirdList=[];
+
+var paused = false;
+
+function init() {
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  paused = false;
+
+  inputPosDict = [];
+
+  ax=70;
+  ay=70;
+  as=.5;
+  move=0.01;
+  //ancor
+  bx =70;
+  by=70;
+  start=0;
+
+  birdList =[];
+  birdControlList =[];
+  dontDrawList =[];
+  tempbirdList=[];
+  applicatorLoc = [];
+  inputPosDict = [];
+  colorMixDict = [];
+  topPathDict = [];
+  sidePathDict = [];
+
+  
+  colorMixDict["Blue,Red"] ="Purple";
+  colorMixDict["Blue,Yellow"] ="Green";
+  colorMixDict["Blue,Purple"] ="BlueViolet";
+  colorMixDict["Blue,Green"] ="Cyan";
+  colorMixDict["Blue,Orange"] ="Pantone";
+
+  colorMixDict["Green,Red"] ="Brown";
+  colorMixDict["Green,Yellow"] ="YellowGreen";
+  colorMixDict["Green,Purple"] ="SteelBlue";
+  colorMixDict["Green,Orange"] ="Arcadia";
+
+  colorMixDict["Orange,Yellow"] ="YellowOrange";
+  colorMixDict["Orange,Red"] ="RedOrange";
+  colorMixDict["Orange,Purple"] ="Magenta";
+
+  colorMixDict["Purple,Red"] ="Burgundy";
+  colorMixDict["Purple,Yellow"] ="Grey";
+
+  colorMixDict["Red,Yellow"] ="Orange";
+  spareColors =  ["GoldenRod","RosyBrown","DodgerBlue","LightSalmon","SpringGreen","Chartreuse"];
+
+  lambda1 = document.getElementById("myText").value.replace(/\s/g,'');
+  buildBird("A", lambda1, 70, 70, .5, 0);
+  var inOutList = lambda1.split(".");
+  var stripOut =  removeAll(inOutList[1],"(");
+  stripOut = removeAll(stripOut,")");
+  lambda1Length =stripOut.length -1;
+  birdControlList["A"] = 0;
+
+  lambda2 = document.getElementById("myText1").value.replace(/\s/g,'');
+  buildBird("B", lambda2, 700, 70, 1, 0);
+  inOutList = lambda2.split(".");
+  stripOut =  removeAll(inOutList[1],"(");
+  stripOut = removeAll(stripOut,")");
+  lambda2Length = stripOut.length-1;
+  birdControlList["B"]=0;
+
+  var aOut = inputPosDict["outAa"];
+  var bIn = inputPosDict["Ba"];
+
+  drawLine(aOut[0], aOut[1], bIn[0], bIn[1], 3, "Red");
+  timer=setInterval(animate, 100);
+}
+
+function animate() {
+  if(!paused){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var xpos = ax;
+    var ypos = ay;
+
+
+    //shrink the left box
+    if(as>.15){
+      buildBird("A",lambda1, xpos, ypos , as ,0);
+      buildBird("B",lambda2,700,70,1,0);
+
+      var aOut = inputPosDict["outAa"]
+      var bIn = inputPosDict["Ba"]
+      drawLine(aOut[0],aOut[1],bIn[0],bIn[1],3,"Red")
+
+      as-=.02;
+    }else{
+      //move bird A until at edge of bird B
+      if (start<2) {
+        if(start==1){
+          xpos = ax - 1000 * as;
+          ypos = ay - 400 * as;
+          
+        }
+
+        start=1;
+        buildBird("A",lambda1, xpos, ypos , as ,0);
+        buildBird("B",lambda2,700,70,1,0);
+
+        var aOut = inputPosDict["outAa"]
+        var bIn = inputPosDict["Ba"]
+        drawLine(aOut[0],aOut[1],bIn[0],bIn[1],3,"Red")
+
+        var newpos = getLineXYatPercent(bx+1000*as,by+400*as,bIn[0],bIn[1],move)
+        ax = newpos[0] ;
+        ay = newpos[1] ;
+        if(move<1){
+          move+=.04;
+        }else{
+          start=2;
+        }
+      }
+      //Moove up to a and break box
+      if(start===2){//if finished moving break box
+        xpos = ax - 1000 * as;
+        ypos = ay - 400 * as;
+        if(topPathDict["Ba"].length<1 && sidePathDict["Ba"].length<1)
+        {       
+          buildBird("B",lambda2,700,70,1,1);
+
+        }else{
+          buildBird("A",lambda1, xpos, ypos , as ,0);
+          buildBird("B",lambda2,700,70,1,1);
+          start=3;
+          move =0.01;//start moving again
+        }
+       
+      }
+      if(start===3){//follow the wire rellocation
+        if(topPathDict["Ba"].length ===0){
+          start =5;
+
+        }
+        if(move>1){
+          move = 0.01
+          birdControlList["B"] = birdControlList["B"] + 1;
+        }
+        if (birdControlList["B"]>3) {
+          start = 4;
+          for (var i = 0; i < topPathDict["Ba"].length; i++) {  
+            var path = topPathDict["Ba"][i]; 
+            dontDrawList.push(path[4]);
+          }
+        }else{
+          if(topPathDict["Ba"].length>0){
+            for (var i = 0; i < topPathDict["Ba"].length; i++) {  
+              var path = topPathDict["Ba"][i]; 
+              var line = path[birdControlList["B"]];
+              if(birdControlList["B"]==3){
+                var newpos = getLineXYatPercent(line[0],line[1],line[2],line[3]+26,move);
+              }else{
+                var newpos = getLineXYatPercent(line[0],line[1],line[2],line[3],move);
+              }
+              ax = newpos[0] ;
+              ay = newpos[1] ;
+              xpos = ax - 500 * as;
+              ypos = ay - 400 * as;
+              buildBird(path[4],lambda1, xpos, ypos , as ,0);   
+              tempbirdList[i] = [path[4],lambda1, xpos, ypos , as ,0];
+            } 
+            if(move<1){
+                move+=.04;
+            }
+          }
+           buildBird("B",lambda2,700,70,1,1);
+        }    
+      }
+      if(start===4){//substutions  
+        for (var i = 0; i < tempbirdList.length; i++) {
+          var bird = tempbirdList[i];
+          birdList[i] = tempbirdList[i];
+
+          if(i === tempbirdList.length -1){
+            birdList.push(tempbirdList[i]);
+          }
+          //console.log(bird)
+          buildBird(bird[0],bird[1],bird[2],bird[3],bird[4],bird[5]);
+        }
+        buildBird("B",lambda2,700,70,1,1);
+
+
+
+        start=5;
+        move =.01
+        birdControlList["B"] = 0;
+        //paused = true;
+      }
+      if(start ===5){// rellocation side
+        if(move>1){
+          move = 0.01
+          birdControlList["B"] = birdControlList["B"] + 1;
+        }
+        if (birdControlList["B"]>0) {
+          start=6;
+          // for (var i = 0; i < sidePathDict["Ba"].length; i++) {  
+          //   var path = sidePathDict["Ba"][i]; 
+          //   //dontDrawList.push(path[4]);
+          // }
+        }else{
+          if(sidePathDict["Ba"].length>0){
+            //tempbirdList =[];
+            for (var i = 0; i < sidePathDict["Ba"].length; i++) {  
+              var path = sidePathDict["Ba"][i]; 
+              var line = path[birdControlList["B"]];
+
+              var newpos = getLineXYatPercent(line[0],line[1],line[2],line[3],move);
+              ax = newpos[0] ;
+              ay = newpos[1] ;
+              xpos = ax - 500 * as;
+              ypos = ay - 400 * as;
+              buildBird(path[4]+"",lambda1, xpos, ypos , as ,0);  
+              birdList.pop(); 
+              birdList.push([path[4]+"",lambda1, xpos, ypos , as ,0]);
+            } 
+            if(move<1){
+                move+=.04;
+            }
+          }
+          for (var i = 0; i < birdList.length; i++) {
+            //birdList[i][5]= 1;
+            var bird = birdList[i];
+            buildBird(bird[0],bird[1],bird[2],bird[3],bird[4],bird[5]);
+          }
+          buildBird("B",lambda2,700,70,1,1);
+        }    
+      }
+      if(start === 6){
+        // for (var i = 0; i < tempbirdList.length; i++) {
+        //   var bird = tempbirdList[i];
+        //   birdList[birdList.length +i ] = tempbirdList[i];
+        //   //console.log(bird)
+        //   //buildBird(bird[0],bird[1],bird[2],bird[3],bird[4],bird[5]);
+        // }
+        for (var i = 0; i < birdList.length; i++) {
+          var bird = birdList[i];
+          buildBird(bird[0],bird[1],bird[2],bird[3],bird[4],bird[5]);
+        }
+        buildBird("B",lambda2,700,70,1,1);
+        //console.log("here")
+        paused=1;
+        for (var i = 0; i < birdList.length; i++) {
+          var bird = birdList[i];
+          //birdList[i][5]= birdList[i][5]+1;
+
+          buildBird(bird[0],bird[1],bird[2],bird[3],bird[4],bird[5]);
+
+        }
+
+      }
+   
+    }
+  }
+}
+
+function buildBird(id,lambda,x,y,scale,betaReduced){
+   var inOutList = lambda.split(".");
+   var stripOut =  removeAll(inOutList[1],"(");
+   stripOut = removeAll(stripOut,")");
+   //ctx.clearRect(0,0,canvas.width,canvas.height);
+   spareColors =  ["GoldenRod","Chartreuse","LightSalmon","RosyBrown","SpringGreen","DodgerBlue"];
+
+   drawBird(id, inOutList, stripOut.length - 1, x, y, scale, betaReduced);
+}
+
+
+//Draw  bird
+function drawBird(id,splitstring, numApplicators, posx, posy, scale, betaReduced) {
+  var boxposX = posx;
+  var boxposY = posy;
+  var boxH = 800*scale;
+  var boxW = 1000*scale;
+  var inputs = splitstring[0];
+  var Outputs =splitstring[1]
+  var numInpts = inputs.length -1;
+  var inputPos = boxH;
+  var minBoxH = boxH - ( scale *80 * numInpts);
+  var minBoxPosX = boxposX +( (numInpts) * 40 * scale );
+  var minBoxPosY = boxposY +( (numInpts) * 40 * scale );  
+  var inColors =["Red", "Blue", "Green","Yellow", "Orange", "Purple"];
+  //inputPosDict = []; 
+
+
+  //Place Input and Outputs
+  for (let step = 0; step < numInpts; step++) {
+   ctx.lineWidth = 1;
+   ctx.strokeStyle = "Black";
+
+   //in
+   if(step>=betaReduced){
+     ctx.strokeRect(boxposX, boxposY, boxW, boxH);
+     ctx.beginPath();
+     ctx.arc(boxposX, (minBoxPosY + ((step)*(minBoxH/numInpts))) , 10*scale, 3*( Math.PI/2 ), ( Math.PI/2 ), true); 
+     ctx.fillStyle = inColors[step];
+     ctx.fill();
+     ctx.stroke(); 
+     ctx.font = Math.floor(scale*30)+"px Arial";
+     ctx.fillText(inputs[step+1], boxposX - (30*scale), (minBoxPosY + ((step)*(minBoxH/numInpts))) + (7*scale));
+   
+   //Out
+     ctx.beginPath();
+     ctx.arc(boxposX + boxW, (minBoxPosY + (minBoxH/2)) , 10*scale, 3*( Math.PI/2 ), ( Math.PI/2 ), false); 
+     ctx.fillStyle = inColors[step];
+     ctx.fill();
+     ctx.stroke();
+   }
+   inputPosDict[id+inputs[step+1]] = [boxposX, (minBoxPosY + ( (step) * (minBoxH/numInpts) ) ), inColors[step], numInpts - step];
+   topPathDict[id+inputs[step+1]] = [];
+   sidePathDict[id+inputs[step+1]] = [];
+   inputPosDict["out"+id+inputs[step+1]] = [boxposX + boxW, (minBoxPosY + (minBoxH/2)) , inColors[step], numInpts - step];
+
+  //outlines
+   if (step>betaReduced) {
+    drawLine(boxposX + boxW + (40*scale), (minBoxPosY + (minBoxH/2)),boxposX + boxW , (minBoxPosY + (minBoxH/2)),3,inColors[step]);
+   }
+
+   //itterate xbox position
+   boxposX += (40*scale);
+   boxposY += (40*scale);
+   boxH -= (80*scale);
+   boxW -= (80*scale);
+  } 
+
+  //reset position after final loop
+   boxposX -= (40*scale);
+   boxposY -= (40*scale);
+   boxH += (80*scale);
+   boxW += (80*scale);
+
+  //Draw internals
+  if(numApplicators==0){//more to this
+    var inputpos = inputPosDict[id+Outputs];
+
+    drawLine(boxposX + boxW , (minBoxPosY + (minBoxH/2)), inputpos[0], inputpos[1],3,"Black");
+  }else{
+    circleposX = boxposX + (58*scale);
+    circleposY = boxposY + (58*scale);
+    for (let app = 0; app < numApplicators; app++) {
+      var multplier = app+.5;
+      //if single applicator center it
+      if(numApplicators==1){
+        multplier = .4;
+      }
+      //draw applicators equidistant
+      if(dontDrawList.includes(id+(numApplicators-app))){
+        //console.log("didnt draw" +(id+(numApplicators-app)))
+      }else{
+        drawCircle(circleposX + (multplier*(boxW/numApplicators)), circleposY + (multplier*(boxH/numApplicators)),12*scale*3);
+      }
+      //save location of applicator
+      inputPosDict[id+(numApplicators-app)+""] = [circleposX + (multplier*(boxW/numApplicators)), circleposY + (multplier*(boxH/numApplicators)),"Pink",1];
+      topPathDict[id+(numApplicators-app)+""] = [];
+      sidePathDict[id+(numApplicators-app)+""] = [];
+    }
+    drawLine(boxposX + boxW, (minBoxPosY + (minBoxH/2)), inputPosDict[id+1][0], inputPosDict[id+1][1],3,inputPosDict[id+1][2]);
+  }
+  //connect up appilicators
+  parseAndDraw(id,Outputs,numApplicators,scale)
+     
+}
+
+function parseAndDraw(id,inString,numApplicatorsRemaining,scale){
+  var n = numApplicatorsRemaining;
+  if(numApplicatorsRemaining > 0){
+    var parsedString = inString;
+    var sections = parsedString.split(/\(|\)/);
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].length > 1) {
+        var chars = sections[i];
+        var firstParse = parsedString.replace("("+chars.slice(0, 2)+")",""+n);
+        if(firstParse === parsedString){
+          firstParse = parsedString.replace(chars.slice(0, 2),""+n);
+        }
+        parsedString = firstParse;
+        drawConnection(id,chars.slice(0, 1),chars.slice(1, 2),n,scale);
+        n=n-1;
+      }
+    }
+    parseAndDraw(id,parsedString,n,scale);
+  }
+  else{
+    return inString;
+  }
+
+}
+
+ function drawConnection(id,top,left,applicator,scale){
+  var leftinput = inputPosDict[id+left];
+  var topinput = inputPosDict[id+top];
+
+  if(leftinput[2] == topinput[2]){ //if the inputs are same color
+    inputPosDict[id+applicator][2]= leftinput[2];
+  }else{//otherwise try and get color from mixing table
+    var colorMix =[leftinput[2],topinput[2]].sort().join();
+    if(colorMixDict.hasOwnProperty(colorMix)){//if they mix get color
+      inputPosDict[id+applicator][2]=colorMixDict[colorMix];
+    }else{//get one of our extra colors if not in our mixing table
+      inputPosDict[id+applicator][2]=spareColors.pop();
+    }
+  }
+
+  var applicatorPos = inputPosDict[id+applicator];
+
+  //drawLine(leftinput[0],leftinput[1],applicatorPos[0]-16,applicatorPos[1],3,leftinput[2]);
+  var applicatorReplaced = false;
+  var index = 0;
+  for (var i = 0; i < birdList.length; i++) {
+    if(birdList[i][0] == id+applicator){
+      applicatorReplaced = true;
+      index = i;
+    }
+  }
+
+  if(applicatorReplaced)
+  {
+    var bIn = inputPosDict[birdList[index][0]];
+    var bird = birdList[index];
+    var posx = bIn[0] -(500*bird[4]);
+    var posy = bIn[1] -(400*bird[4]);
+    //drawLine(leftinput[0], leftinput[1], posx,posy, 3, leftinput[2]);
+    //console.log("out"+birdList[index][0])
+    var bOut = inputPosDict["out"+birdList[index][0]+top];
+     //console.log(inputPosDict)
+     //console.log("out"+birdList[index][0]+top)
+    var oldPos =inputPosDict[id+applicator];
+    inputPosDict[id+applicator] = [bOut[0],bOut[1],oldPos[2],oldPos[3]];
+    
+    drawLine(leftinput[0], leftinput[1], posx -10,leftinput[1], 3, leftinput[2]);
+    drawLine(posx-10, leftinput[1], posx-10,posy, 3, leftinput[2]);
+    drawLine(posx -10, posy, posx, posy, 3, leftinput[2]);
+
+    sidePathDict[id+left].push([[leftinput[0], leftinput[1], posx -10,leftinput[1]],[leftinput[0], leftinput[1], posx -10,leftinput[1]],[posx -10, posy, posx, posy, 3, leftinput[2]],id+applicator]);
+  }else{
+    var pos1 = applicatorPos[0]-(45*scale);
+    drawLine(leftinput[0], leftinput[1], pos1,leftinput[1], 3, leftinput[2]);
+    drawLine(pos1, leftinput[1], pos1, applicatorPos[1], 3, leftinput[2]);
+    drawLine(pos1, applicatorPos[1], applicatorPos[0]-(12*scale*3), applicatorPos[1], 3, leftinput[2]);
+
+    // //save paths for animation
+    sidePathDict[id+left].push([[leftinput[0], leftinput[1], pos1,leftinput[1]],[pos1, leftinput[1], pos1, applicatorPos[1]],[pos1, applicatorPos[1], applicatorPos[0]-(12*scale*3), applicatorPos[1]],id+applicator]);
+  }
+  
+  
+  
+  //console.log(temp)
+  
+  
+  //console.log(sidePathDict[id+left])
+
+  //drawLine(topinput[0],topinput[1],applicatorPos[0],applicatorPos[1]-16,3,topinput[2]);
+  var pos2 = applicatorPos[1]-(45*scale);
+  if(!dontDrawList.includes(id+applicator)){
+    drawLine(topinput[0], topinput[1], pos1 + (15*scale), topinput[1], 3, topinput[2]);
+    drawLine(pos1+(15*scale), topinput[1], pos1+(15*scale), pos2, 3, topinput[2]);
+    drawLine(pos1+(15*scale), pos2, applicatorPos[0], pos2, 3, topinput[2]);
+    drawLine(applicatorPos[0], pos2,applicatorPos[0], applicatorPos[1]-(12*scale*3), 3, topinput[2]);
+  }
+
+  // //save paths for animation
+  topPathDict[id+top].push([[topinput[0], topinput[1], pos1 + (15*scale), topinput[1]],[pos1+(15*scale), topinput[1], pos1+(15*scale), pos2],[pos1+(15*scale), pos2, applicatorPos[0], pos2],[applicatorPos[0], pos2,applicatorPos[0], applicatorPos[1]-(12*scale*3)],id+applicator]);
+
+  //drawLine(pos1, applicatorPos[1], applicatorPos[0]-12, applicatorPos[1], 3, leftinput[2]);
+ }
+
+ function drawLine(x,y,x1,y1,width,color){
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x1, y1);
+    ctx.lineWidth = width;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+  }
+
+
+ function drawCircle(x,y,r){
+    ctx.fillStyle = "Black";
+    ctx.strokeStyle = "Black";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+  }
+ 
+
+function removeAll(str,toRemove){
+  var final = str.split("").filter(function(c){ 
+    return c != toRemove;
+  }).join("");
+  return final;
+}
+
+// line: percent is 0-1
+function getLineXYatPercent(x,y,x1,y1,percent) {
+    var dx = x1-x;
+    var dy = y1-y;
+    var X = x + dx*percent;
+    var Y = y + dy*percent;
+    return( [X,Y] );
+}
+</script>

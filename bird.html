@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Birds</title>
+    <!-- <script type="text/javascript" src="js/singlebird.js"></script> -->
+  </head>
+  <body onload="init('canvas',document.getElementById('myText').value);">
+    <div>
+      <p>
+        <label>Lambda</label>
+        <input type = "text"
+               id = "myText"
+               value = "Labcd.abcd" />
+        <button onclick="buildBird( document.getElementById('myText').value)">Build Bird</button>
+        <input id="slide" type="range" min=".1" max="1.2" step=".1" value="1">
+      </p>
+      <canvas id="canvas" width="1400" height="1200">
+      Sorry, browser does not support canvas.
+      </canvas>
+    </div>
+  </body>
+</html>
+
+
+<script type="text/javascript">
+var canvas;
+var ctx;
+var applicatorLoc = [];
+var inputPosDict = [];
+var colorMixDict = [];
+var spareColors;
+
+function init() {
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  
+  colorMixDict["Blue,Red"] ="Purple";
+  colorMixDict["Blue,Yellow"] ="Green";
+  colorMixDict["Blue,Purple"] ="BlueViolet";
+  colorMixDict["Blue,Green"] ="Cyan";
+  colorMixDict["Blue,Orange"] ="Pantone";
+
+  colorMixDict["Green,Red"] ="Brown";
+  colorMixDict["Green,Yellow"] ="YellowGreen";
+  colorMixDict["Green,Purple"] ="SteelBlue";
+  colorMixDict["Green,Orange"] ="Arcadia";
+
+  colorMixDict["Orange,Yellow"] ="YellowOrange";
+  colorMixDict["Orange,Red"] ="RedOrange";
+  colorMixDict["Orange,Purple"] ="Magenta";
+
+  colorMixDict["Purple,Red"] ="Burgundy";
+  colorMixDict["Purple,Yellow"] ="Grey";
+
+  colorMixDict["Red,Yellow"] ="Orange";
+  spareColors =  ["GoldenRod","RosyBrown","DodgerBlue","LightSalmon","SpringGreen","Chartreuse"];
+
+  
+  buildBird();
+}
+
+function buildBird(){
+   var lambda = document.getElementById("myText").value.replace(/\s/g,'');
+   var inOutList = lambda.split(".");
+   var stripOut =  removeAll(inOutList[1],"(");
+   stripOut = removeAll(stripOut,")");
+   ctx.clearRect(0,0,canvas.width,canvas.height);
+   spareColors =  ["GoldenRod","Chartreuse","LightSalmon","RosyBrown","SpringGreen","DodgerBlue"];
+   var slide = document.getElementById('slide');
+
+   drawBird( inOutList ,stripOut.length-1,70,70,slide.value);
+}
+
+//Draw  bird
+function drawBird(splitstring, numApplicators,posx,posy, scale) {
+  var boxposX = posx;
+  var boxposY = posy;
+  var boxH = 800*scale;
+  var boxW = 1000*scale;
+  var inputs = splitstring[0];
+  var Outputs =splitstring[1]
+  var numInpts = inputs.length -1;
+  var inputPos = boxH;
+  var minBoxH = boxH - ( scale *80 * numInpts);
+  var minBoxPos = boxposX +( (numInpts) * 40 * scale ); 
+  var inColors =["Red", "Blue", "Green","Yellow", "Orange", "Purple"];
+  inputPosDict = []; 
+
+
+  //Place Input and Outputs
+  for (let step = 0; step < numInpts; step++) {
+   ctx.lineWidth = 1;
+   ctx.strokeStyle = "Black";
+   ctx.strokeRect(boxposX, boxposY, boxW, boxH);
+  
+   //in
+   ctx.beginPath();
+   ctx.arc(boxposX, (minBoxPos + ((step)*(minBoxH/numInpts))) , 10*scale, 3*( Math.PI/2 ), ( Math.PI/2 ), true); 
+   ctx.fillStyle = inColors[step];
+   ctx.fill();
+   ctx.stroke(); 
+   ctx.font = Math.floor(scale*30)+"px Arial";
+   ctx.fillText(inputs[step+1], boxposX-(30*scale), (minBoxPos + ((step)*(minBoxH/numInpts))) + (7*scale));
+   inputPosDict[inputs[step+1]] = [boxposX, (minBoxPos + ( (step) * (minBoxH/numInpts) ) ), inColors[step], numInpts - step];
+   
+   //Out
+   ctx.beginPath();
+   ctx.arc(boxposX + boxW, (minBoxPos + (minBoxH/2)) , 10*scale, 3*( Math.PI/2 ), ( Math.PI/2 ), false); 
+   ctx.fillStyle = inColors[step];
+   ctx.fill();
+   ctx.stroke();
+
+   //outlines
+   if (step>0) {
+    drawLine(boxposX + boxW + (40*scale), (minBoxPos + (minBoxH/2)),boxposY + boxW , (minBoxPos + (minBoxH/2)),3,inColors[step]);
+   }
+
+   //itterate box position
+   boxposX += (40*scale);
+   boxposY += (40*scale);
+   boxH -= (80*scale);
+   boxW -= (80*scale);
+  } 
+  //reset position after final loop
+   boxposX -= (40*scale);
+   boxposY -= (40*scale);
+   boxH += (80*scale);
+   boxW += (80*scale);
+
+  //Draw internals
+  if(numApplicators==0){//more to this
+    var inputpos = inputPosDict[Outputs];
+
+    drawLine(boxposX + boxW , (minBoxPos + (minBoxH/2)), inputpos[0], inputpos[1],3,"Black");
+  }else{
+    circlepos = boxposX + (58*scale);
+    for (let app = 0; app < numApplicators; app++) {
+      var multplier =app;
+      //if single applicator center it
+      if(numApplicators==1){
+        multplier = .4;
+      }
+      //draw applicators equidistant
+      drawCircle(circlepos + (multplier*(boxW/numApplicators)), circlepos + (multplier*(boxH/numApplicators)),12*scale);
+      //save location of applicator
+      inputPosDict[(numApplicators-app)+""] = [circlepos + (multplier*(boxW/numApplicators)), circlepos + (multplier*(boxH/numApplicators)),"Pink",1];
+    }
+  }
+
+  //connect up appilicators
+  parseAndDraw(Outputs,numApplicators,scale)
+  drawLine(boxposX + boxW, (minBoxPos + (minBoxH/2)), inputPosDict[1][0], inputPosDict[1][1],3,inputPosDict[1][2]);
+    
+}
+
+function parseAndDraw(inString,numApplicatorsRemaining,scale){
+  var n = numApplicatorsRemaining;
+  if(numApplicatorsRemaining > 0){
+    var parsedString = inString;
+    var sections = inString.split(/\(|\)/);
+
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].length > 1) {
+        var chars = sections[i];
+        parsedString = parsedString.replace("("+chars.slice(0, 2)+")",""+n);
+        parsedString = parsedString.replace(chars.slice(0, 2),""+n);
+        drawConnection(chars.slice(0, 1),chars.slice(1, 2),n,scale);
+        n=n-1;
+      }
+    }
+    parseAndDraw(parsedString,n,scale);
+  }
+  else{
+    return inString;
+  }
+
+}
+
+ function drawConnection(top,left,applicator,scale){
+  var leftinput = inputPosDict[left];
+  var topinput = inputPosDict[top];
+
+  if(leftinput[2] == topinput[2]){ //if the inputs are same color
+    inputPosDict[applicator][2]= leftinput[2];
+  }else{//otherwise try and get color from mixing table
+    var colorMix =[leftinput[2],topinput[2]].sort().join();
+    if(colorMixDict.hasOwnProperty(colorMix)){//if they mix get color
+      inputPosDict[applicator][2]=colorMixDict[colorMix];
+    }else{//get one of our extra colors if not in our mixing table
+      inputPosDict[applicator][2]=spareColors.pop();
+    }
+  }
+  var applicatorPos = inputPosDict[applicator];
+
+  //drawLine(leftinput[0],leftinput[1],applicatorPos[0]-16,applicatorPos[1],3,leftinput[2]);
+  var pos1 = applicatorPos[0]-(45*scale);
+  drawLine(leftinput[0], leftinput[1], pos1,leftinput[1], 3, leftinput[2]);
+  drawLine(pos1, leftinput[1], pos1, applicatorPos[1], 3, leftinput[2]);
+  drawLine(pos1, applicatorPos[1], applicatorPos[0]-(12*scale), applicatorPos[1], 3, leftinput[2]);
+
+  //drawLine(topinput[0],topinput[1],applicatorPos[0],applicatorPos[1]-16,3,topinput[2]);
+  var pos2 = applicatorPos[1]-(45*scale);
+  drawLine(topinput[0], topinput[1], pos1 + (15*scale), topinput[1], 3, topinput[2]);
+  drawLine(pos1+(15*scale), topinput[1], pos1+(15*scale), pos2, 3, topinput[2]);
+  drawLine(pos1+(15*scale), pos2, applicatorPos[0], pos2, 3, topinput[2]);
+  drawLine(applicatorPos[0], pos2,applicatorPos[0], applicatorPos[1]-(12*scale), 3, topinput[2]);
+
+  //drawLine(pos1, applicatorPos[1], applicatorPos[0]-12, applicatorPos[1], 3, leftinput[2]);
+ }
+
+ function drawLine(x,y,x1,y1,width,color){
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x1, y1);
+    ctx.lineWidth = width;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+  }
+
+
+ function drawCircle(x,y,r){
+    ctx.fillStyle = "Black";
+    ctx.strokeStyle = "Black";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+  }
+ 
+
+function removeAll(str,toRemove){
+  var final = str.split("").filter(function(c){ 
+    return c != toRemove;
+  }).join("");
+  return final;
+}
+</script>

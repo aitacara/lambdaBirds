@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content=""> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Lambda quiz</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- Custom styles for this template -->
+    <!-- <link href="dashboard.css" rel="stylesheet"> -->
+    <style type="text/css">
+      body{
+        font-size: 20px;
+        font-family: 'Work Sans', sans-serif;
+        color: #333;
+        font-weight: 300;
+        text-align: center;
+        background-color: #f8f6f0;
+
+      }
+      h1{
+        font-weight: 300;
+        margin: 0px;
+        padding: 10px;
+        font-size: 20px;
+        background-color: #444;
+        color: #fff;
+      }
+      .question{
+        font-size: 30px;
+        margin-bottom: 10px;
+      }
+      .answers {
+        margin-bottom: 20px;
+        text-align: left;
+        display: inline-block;
+      }
+      .answers label{
+        display: block;
+        margin-bottom: 10px;
+      }
+      button{
+        font-family: 'Work Sans', sans-serif;
+        font-size: 22px;
+        background-color: #100;
+        color: #fff;
+        border: 20px;
+        border-radius: 30px;
+        padding: 20px;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+      button:hover{
+        background-color: #38a;
+      }
+
+      .advBut {
+        margin-top: 260px;
+      }
+
+      .slide{
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+      .slide1{
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+      .active-slide{
+        opacity: 1;
+        z-index: 2;
+      }
+      .quiz-container{
+        position: relative;
+        height: 500px;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active " id="intro-tab" data-toggle="tab" href="#intro" role="tab" aria-controls="Intro" aria-selected="true">Introduction</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="Quiz" aria-selected="false">Basics Quiz</a>
+  </li>
+   <li class="nav-item">
+    <a class="nav-link " id="adv-tab" data-toggle="tab" href="#advQuiz" role="tab" aria-controls="QuizAdv" aria-selected="false">Expression Quiz</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Free Draw</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/birdComb2">Animate</a>
+  </li>
+</ul>  
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="intro" role="tabpanel" aria-labelledby="intro-tab">
+    <h1>Welcome to Build-a-Bird</h1>
+    <p> Your one stop shop for learning visual lambda calclus</p>
+    <p> Enjoy your stay</p>
+    <br><br>
+    <p> Find the visualisation that works for you:</p>
+    <p> <a class="nav-link" href="http://dkeenan.com/Lambda/">To Dissect a Mockingbird:
+A Graphical Notation for the Lambda Calculus with Animated Reduction</a></p>
+<p> <a  href="http://bntr.planet.ee/lambda/work/visual_lambda.pdf">Bubble Notation</a></p>
+<p> <a  href="http://users.encs.concordia.ca/~haarslev/vl95www/html-papers/citrin/citrin.html">Programming with Visual Expressions: VEX </a></p>
+<p> <a  href="http://worrydream.com/AlligatorEggs/">Alligator Eggs</a></p>
+<p> <a  href="https://tromp.github.io/cl/diagrams.html">Lambda Diagrams</a></p>
+<p> <a  href="https://csvoss.com/circuit-notation-lambda-calculus">Circuit-Like Notation</a></p>
+<p> <a  href="https://ycombinator.chibicode.com/functional-programming-emojis">Emoji based Notation</a></p>
+  </div>
+
+  <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="quiz-container">
+      <div id="quiz"></div>
+    </div>
+    <button id="previous">Previous Question</button>
+    <button id="next">Next Question</button>
+    <button id="submit">Submit Quiz</button>
+    <div id="results"></div>
+  </div>
+
+  <div class="tab-pane fade " id="advQuiz" role="advpanel" aria-labelledby="adv-tab">
+    <div class="quiz-container">
+      <div id="quizAdv"></div>
+    </div>
+    <button id="previousAdv" class ="advBut">Previous Question</button>
+    <button id="nextAdv" class ="advBut">Next Question</button>
+    <button id="submitAdv" class ="advBut">Submit Quiz</button>
+    <div id="resultsAdv"></div>
+  </div>
+
+  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+    <body onload="init('canvas',document.getElementById('myText').value,1);">
+      <div>
+        <p>
+          <label>Lambda: </label>
+          <input type = "text"
+                 id = "myText"
+                 value = "Labcd.a(bc)d" />
+          <button onclick="buildBird( document.getElementById('myText').value, 1)">Build Bird</button>
+        </p>
+        <canvas id="canvas" width="1400" height="1200">
+        Sorry, browser does not support canvas.
+        </canvas>
+      </div>
+    </body>
+
+  </div>
+  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+    
+  </div>
+</div>
+</html>
+<script type="text/javascript" src="js/singlebird.js"></script>
+<script>
+  (function(){
+  // Functions
+  function buildQuiz(){
+    // variable to store the HTML output
+    const output = [];
+
+    // for each question...
+    myQuestions.forEach(
+      (currentQuestion, questionNumber) => {
+
+        // variable to store the list of possible answers
+        const answers = [];
+
+        // and for each available answer...
+        for(letter in currentQuestion.answers){
+
+          // ...add an HTML radio button
+          answers.push(
+            `<label>
+              <input type="radio" name="question${questionNumber}" value="${letter}">
+              ${letter} :
+              ${currentQuestion.answers[letter]}
+            </label>`
+          );
+        }
+
+        // add this question and its answers to the output
+        output.push(
+          `<div class="slide">
+            <div class="question"> ${currentQuestion.question} </div>
+            <div class="answers"> ${answers.join("")} </div>
+          </div>`
+        );
+      }
+    );
+
+    // finally combine our output list into one string of HTML and put it on the page
+    quizContainer.innerHTML = output.join('');
+  }
+
+  function showResults(){
+
+    // gather answer containers from our quiz
+    const answerContainers = quizContainer.querySelectorAll('.answers');
+
+    // keep track of user's answers
+    let numCorrect = 0;
+
+    // for each question...
+    myQuestions.forEach( (currentQuestion, questionNumber) => {
+
+      // find selected answer
+      const answerContainer = answerContainers[questionNumber];
+      const selector = `input[name=question${questionNumber}]:checked`;
+      const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+      // if answer is correct
+      if(userAnswer === currentQuestion.correctAnswer){
+        // add to the number of correct answers
+        numCorrect++;
+
+        // color the answers green
+        answerContainers[questionNumber].style.color = 'lightgreen';
+      }
+      // if answer is wrong or blank
+      else{
+        // color the answers red
+        answerContainers[questionNumber].style.color = 'red';
+      }
+    });
+
+    // show number of correct answers out of total
+    resultsContainer.innerHTML = `${numCorrect} out of ${myQuestions.length}`;
+  }
+
+  function showSlide(n) {
+    slides[currentSlide].classList.remove('active-slide');
+    slides[n].classList.add('active-slide');
+    currentSlide = n;
+    if(currentSlide === 0){
+      previousButton.style.display = 'none';
+    }
+    else{
+      previousButton.style.display = 'inline-block';
+    }
+    if(currentSlide === slides.length-1){
+      nextButton.style.display = 'none';
+      submitButton.style.display = 'inline-block';
+    }
+    else{
+      nextButton.style.display = 'inline-block';
+      submitButton.style.display = 'none';
+    }
+  }
+
+  function showNextSlide() {
+    showSlide(currentSlide + 1);
+  }
+
+  function showPreviousSlide() {
+    showSlide(currentSlide - 1);
+  }
+
+  // Variables
+  const quizContainer = document.getElementById('quiz');
+  const resultsContainer = document.getElementById('results');
+  const submitButton = document.getElementById('submit');
+  const myQuestions = [
+  {
+      question: "The Identity \"bird\" is the simpelest bird he just repeats what he hears.<br> Some would say she doesn't have a brain.<br> If his ear (semi-circle on the left) hears \"<b>a</b>\" what does he sing? <br> <br><img class=\"mb-4\" src=\"/js/identity.png\" alt=\"\" width=\"200\" height=\"120\">",
+      answers: {
+        a: " a",
+        b: " b",
+        c: " c",
+        d: " aa"
+
+      },
+      correctAnswer: "a"
+    },
+  {
+      question: "The following image shows how a \"birds\" internals work. The brain cell (represented by a dot) hears \"<b>a</b>\" and \"<b>b</b>\".<br> What does it sing/ output? <br><br> <img class=\"mb-4\" src=\"/js/dot.png\" alt=\"\" width=\"200\" height=\"120\">",
+      answers: {
+        a: " ba",
+        b: " c",
+        c: " a",
+        d: " ab"
+
+      },
+      correctAnswer: "d"
+    },
+    {
+      question: "Wow, look at this beautiful \"bird\".<br> Which lambda expression should we use to name her? <br> HINT: The previous two answers help.<br><br> <img class=\"mb-4\" src=\"/js/iidoncebird.png\" alt=\"\" width=\"200\" height=\"120\">",
+      answers: {
+        a: " λab.aba",
+        b: " λa.b",
+        c: " λab.ab",
+        d: " λab.ba"
+
+      },
+      correctAnswer: "c"
+    },
+    {
+      question: "That last bird was beautiful, but simple \"birds\" can be too! <br> Name that bird<br> <br><img class=\"mb-4\" src=\"/js/mock.png\" alt=\"\" width=\"200\" height=\"120\">",
+      answers: {
+        a: " λa.b",
+        b: " λa.aa",
+        c: " λab.ab",
+        d: " λa.ab"
+
+      },
+      correctAnswer: "b"
+    },
+    {
+      question: "Which lambda expression is represented by the following \"bird\"? <br> <br> <img class=\"mb-4\" src=\"/js/bb.png\" alt=\"\" width=\"200\" height=\"120\">",
+      answers: {
+        a: " λab.aa",
+        b: " λb.bb",
+        c: " λab.ba",
+        d: " λab.bb"
+
+      },
+      correctAnswer: "d"
+    }
+  ];
+
+  // Kick things off
+  buildQuiz();
+
+  // Pagination
+  const previousButton = document.getElementById("previous");
+  const nextButton = document.getElementById("next");
+  const slides = document.querySelectorAll(".slide");
+  let currentSlide = 0;
+
+  // Show the first slide
+  showSlide(currentSlide);
+
+  // Event listeners
+  submitButton.addEventListener('click', showResults);
+  previousButton.addEventListener("click", showPreviousSlide);
+  nextButton.addEventListener("click", showNextSlide);
+})();
+
+</script>
+
+<script>
+  (function(){
+  // Functions
+  function buildadvancedQuiz(){
+    // variable to store the HTML output
+    const output = [];
+
+    // for each question...
+    myQuestions.forEach(
+      (currentQuestion, questionNumber) => {
+
+        // variable to store the list of possible answers
+        const answers = [];
+
+          // ...add an HTML radio button
+          answers.push(
+            `<label>
+              <input type = "text"
+                 id = "question${questionNumber}"
+                 value = "" />
+            </label>`
+          );
+       
+        // add this question and its answers to the output
+        output.push(
+          `<div class="slide1">
+            <div class="questionAdv"> ${currentQuestion.question} </div>
+            <div class="answersAdv"> ${answers.join("")} </div>
+          </div>`
+        );
+      }
+    );
+
+    // finally combine our output list into one string of HTML and put it on the page
+    quizContainer.innerHTML = output.join('');
+  }
+
+  function showResults(){
+
+    // gather answer containers from our quiz
+    const answerContainers = quizContainer.querySelectorAll('.answersAdv');
+
+    // keep track of user's answers
+    let numCorrect = 0;
+
+    // for each question...
+    myQuestions.forEach( (currentQuestion, questionNumber) => {
+
+      // find selected answer
+      const answerContainer = answerContainers[questionNumber];
+      const selector = `question${questionNumber}`;
+      console.log(answerContainer)
+      console.log(selector)
+      const answerBox = document.getElementById(selector);
+      const userAnswer = document.getElementById(selector).value;
+
+      console.log(document.getElementById(selector).value);
+
+      // if answer is correct
+      if(userAnswer === currentQuestion.correctAnswer){
+        // add to the number of correct answers
+        numCorrect++;
+
+        // color the answers green
+        answerBox.style.backgroundColor = 'lightgreen';
+      }
+      // if answer is wrong or blank
+      else{
+        // color the answers red
+        answerBox.style.backgroundColor = 'red';
+      }
+    });
+
+    // show number of correct answers out of total
+    resultsContainer.innerHTML = `${numCorrect} out of ${myQuestions.length}`;
+  }
+
+  function showSlide(n) {
+    slides[currentSlide].classList.remove('active-slide');
+    slides[n].classList.add('active-slide');
+    currentSlide = n;
+    if(currentSlide === 0){
+      previousButton.style.display = 'none';
+    }
+    else{
+      previousButton.style.display = 'inline-block';
+    }
+    if(currentSlide === slides.length-1){
+      nextButton.style.display = 'none';
+      submitButton.style.display = 'inline-block';
+    }
+    else{
+      nextButton.style.display = 'inline-block';
+      submitButton.style.display = 'none';
+    }
+  }
+
+  function showNextSlide() {
+    showSlide(currentSlide + 1);
+  }
+
+  function showPreviousSlide() {
+    showSlide(currentSlide - 1);
+  }
+
+  // Variables
+  const quizContainer = document.getElementById('quizAdv');
+  const resultsContainer = document.getElementById('resultsAdv');
+  const submitButton = document.getElementById('submitAdv');
+  const myQuestions = [
+  {
+      question: "Name that bird?<br>Format: Example Labc.a(bc).Please name inputs sequentlally and alphabetically.<br>  If you get stuck you can test out your answers in the drawer tool.<br><canvas id=\"canvas1\" width=\"800\" height=\"620\">Sorry, browser does not support canvas.</canvas> ",
+      correctAnswer: "Lab.ab"
+    },
+  {
+      question: "Name that bird?<br>Format: Example Labc.a(bc).Please name inputs sequentlally and alphabetically.<br>  If you get stuck you can test out your answers in the drawer tool.<br><canvas id=\"canvas2\" width=\"800\" height=\"620\">Sorry, browser does not support canvas.</canvas> ",
+      
+      correctAnswer: "Lab.ba"
+    },
+    {
+       question: "Name that bird? HINT: make sure to use brackets Lab.a(ba) is different to Lab.(ab)a <br>Format: Example Labc.a(bc).Please name inputs sequentlally and alphabetically.<br>  If you get stuck you can test out your answers in the drawer tool.<br><canvas id=\"canvas3\" width=\"800\" height=\"620\">Sorry, browser does not support canvas.</canvas> ",
+      
+      correctAnswer: "Lab.(ab)a"
+    }
+  ];
+
+  // Kick things off
+  buildadvancedQuiz();
+  init('canvas1','Lab.ab', .65);
+  init('canvas2','Lab.ba', .65);
+  init('canvas3','Lab.(ab)a', .65);
+
+  // Pagination
+  const previousButton = document.getElementById("previousAdv");
+  const nextButton = document.getElementById("nextAdv");
+  const slides = document.querySelectorAll(".slide1");
+  let currentSlide = 0;
+
+  // Show the first slide
+  showSlide(currentSlide);
+
+  // Event listeners
+  submitButton.addEventListener('click', showResults);
+  previousButton.addEventListener("click", showPreviousSlide);
+  nextButton.addEventListener("click", showNextSlide);
+})();
+
+</script>
+
+
+
+
+
